@@ -97,6 +97,9 @@ const char* dialog_message(int ID, bool* updateText)
 			return cvtString("Shows more overscan area for some games which expect there to be some.\n"
 				"Used for games like Need for Speed Underground (PAL),Crash Nitro Kart (PAL) \n"
 				"and Espgaluda (When using certain Tate modes)");
+		case IDC_PCRTC_DISABLE_ANTIBLUR:
+			return cvtString("Enable: Removes the internal anti-blur hacks on the merge ciruit.\n"
+				"This will likely make a lot of games look blurrier but is more accurate to the PS2.");
 		case IDC_DISABLE_INTERLACE_OFFSETS:
 			return cvtString("Enable: Removes the offset for interlacing when upscaling.\n"
 				"Can reduce blurring in some games, where the opposite is true most of the time.\n"

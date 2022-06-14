@@ -196,71 +196,83 @@ bool GSRenderer::Merge(int field)
 				off.y &= ~1;
 		}
 
-		// Start of Anti-Blur code.
-		if (!ignore_offset)
+		if (!GSConfig.DisableAntiBlur)
 		{
-			if (samesrc)
+			// Start of Anti-Blur code.
+			if (!ignore_offset)
 			{
-				// Offset by DISPLAY setting
-				if (display_diff.x < 4)
-					off.x -= display_diff.x;
-				if (display_diff.y < 4)
-					off.y -= display_diff.y;
-
-				// Offset by DISPFB setting
-				if (frame_diff.x == 1)
-					off.x += 1;
-				if (frame_diff.y == 1)
-					off.y += 1;
-			}
-		}
-		else
-		{
-			if (!slbg || !feedback_merge)
-			{
-				const int videomode = static_cast<int>(GetVideoMode()) - 1;
-				const GSVector4i offsets = !GSConfig.PCRTCOverscan ? VideoModeOffsets[videomode] : VideoModeOffsetsOverscan[videomode];
-				GSVector2i base_resolution(offsets.x, offsets.y);
-
-				if (isinterlaced() && !m_regs->SMODE2.FFMD)
-					base_resolution.y *= 2;
-
-				// If the offsets between the two displays are quite large, it's probably intended for an effect.
-				if (display_diff.x >= 4)
-					off.x = display_diff.x;
-
-				if (display_diff.y >= 4)
-					off.y = display_diff.y;
-
-				// Anti blur hax.
 				if (samesrc)
 				{
 					// Offset by DISPLAY setting
-					if (display_diff.x < 0)
-					{
-						off.x = 0;
-						if (base_resolution.x > resolution.x)
-							resolution.x -= display_diff.x;
-					}
-					if (display_diff.y < 0)
-					{
-						off.y = 0;
-						if (base_resolution.y > resolution.y)
-							resolution.y -= display_diff.y;
-					}
+					if (display_diff.x < 4)
+						off.x -= display_diff.x;
+					if (display_diff.y < 4)
+						off.y -= display_diff.y;
 
 					// Offset by DISPFB setting
 					if (frame_diff.x == 1)
 						off.x += 1;
-
 					if (frame_diff.y == 1)
 						off.y += 1;
-
-					// Don't do X, we only care about height, this would need to be tailored for games using X (Black does -5).
-					// Mainly for Hokuto no Ken which does -14 Y offset.
-					if (display_baseline.y < -4)
-						off.y += display_baseline.y;
 				}
+			}
+			else
+			{
+				if (!slbg || !feedback_merge)
+				{
+					const int videomode = static_cast<int>(GetVideoMode()) - 1;
+					const GSVector4i offsets = !GSConfig.PCRTCOverscan ? VideoModeOffsets[videomode] : VideoModeOffsetsOverscan[videomode];
+					GSVector2i base_resolution(offsets.x, offsets.y);
+
+					if (isinterlaced() && !m_regs->SMODE2.FFMD)
+						base_resolution.y *= 2;
+
+					// If the offsets between the two displays are quite large, it's probably intended for an effect.
+					if (display_diff.x >= 4)
+						off.x = display_diff.x;
+
+					if (display_diff.y >= 4)
+						off.y = display_diff.y;
+
+					// Anti blur hax.
+					if (samesrc)
+					{
+						// Offset by DISPLAY setting
+						if (display_diff.x < 0)
+						{
+							off.x = 0;
+							if (base_resolution.x > resolution.x)
+								resolution.x -= display_diff.x;
+						}
+						if (display_diff.y < 0)
+						{
+							off.y = 0;
+							if (base_resolution.y > resolution.y)
+								resolution.y -= display_diff.y;
+						}
+
+						// Offset by DISPFB setting
+						if (frame_diff.x == 1)
+							off.x += 1;
+
+						if (frame_diff.y == 1)
+							off.y += 1;
+
+						// Don't do X, we only care about height, this would need to be tailored for games using X (Black does -5).
+						// Mainly for Hokuto no Ken which does -14 Y offset.
+						if (display_baseline.y < -4)
+							off.y += display_baseline.y;
+					}
+				}
+			}
+		}
+		else if(ignore_offset)
+		{
+			// Ignore offsets when only the second circuit is enabled
+			if (!slbg || !feedback_merge || !samesrc)
+			{
+				off.x = display_diff.x;
+				off.y = display_diff.y;
 			}
 		}
 		// End of Anti-Blur code.
