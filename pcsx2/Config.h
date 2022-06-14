@@ -569,6 +569,8 @@ struct Pcsx2Config
 		/// Sets user hack values to defaults when user hacks are not enabled.
 		void MaskUserHacks();
 
+		void UpscalingHacks();
+
 		/// Sets user hack values to defaults when upscaling is not enabled.
 		void MaskUpscalingHacks();
 

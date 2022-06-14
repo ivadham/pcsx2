@@ -609,6 +609,9 @@ void Pcsx2Config::GSOptions::ReloadIniSettings()
 	GSSettingStringEx(ShaderFX_Conf, "shaderfx_conf");
 	GSSettingStringEx(ShaderFX_GLSL, "shaderfx_glsl");
 
+	if (UpscaleMultiplier == 1u)
+		UpscalingHacks();
+
 #undef GSSettingInt
 #undef GSSettingIntEx
 #undef GSSettingBool
@@ -650,15 +653,23 @@ void Pcsx2Config::GSOptions::MaskUserHacks()
 #endif
 }
 
-void Pcsx2Config::GSOptions::MaskUpscalingHacks()
+void Pcsx2Config::GSOptions::UpscalingHacks()
 {
-	if (UpscaleMultiplier == 1 || ManualUserHacks)
-		return;
-
 	UserHacks_AlignSpriteX = false;
 	UserHacks_MergePPSprite = false;
+	UserHacks_WildHack = false;
 	UserHacks_HalfPixelOffset = 0;
 	UserHacks_RoundSprite = 0;
+	UserHacks_TCOffsetX = 0;
+	UserHacks_TCOffsetY = 0;
+}
+
+void Pcsx2Config::GSOptions::MaskUpscalingHacks()
+{
+	if (ManualUserHacks)
+		return;
+
+	UpscalingHacks();
 }
 
 bool Pcsx2Config::GSOptions::UseHardwareRenderer() const
